@@ -10,6 +10,17 @@ import JanjiRoute from "./routes/JanjiRoute.js";
 dotenv.config();
 
 const app = express();
+const port = process.env.APP_PORT;
+
+app.get('/', (req, res) => {
+  res.send('Backend Berjalan!');
+});
+
+app.listen(port, () => {
+  console.log(`Server berjalan di port ${port}`);
+});
+
+export default app; // Penting untuk @vercel/node
 
 app.use(cors({
     credentials: true,
@@ -32,6 +43,6 @@ app.use(AuthRoute);
 app.use(EdukasiRoute);
 app.use(JanjiRoute);
 
-app.listen(process.env.APP_PORT, ()=>{
-    console.log('Server up and running...');
-});
+// app.listen(process.env.APP_PORT, ()=>{
+//     console.log('Server up and running...');
+// });

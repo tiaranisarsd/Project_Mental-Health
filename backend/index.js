@@ -2,6 +2,8 @@ import express from "express";
 import cors from "cors";
 import session from "express-session";
 import dotenv from "dotenv";
+import pgSession from 'connect-pg-simple';
+import { PrismaClient } from '@prisma/client';
 import TinjauanRoute from "./routes/TinjauanRoute.js";
 import UsersRoute from "./routes/UsersRoute.js";
 import AuthRoute from "./routes/AuthRoute.js";
@@ -11,6 +13,8 @@ dotenv.config();
 
 const app = express();
 const port = process.env.APP_PORT;
+const prisma = new PrismaClient();
+const PGStore = pgSession(session);
 
 app.get('/', (req, res) => {
   res.send('Backend Berjalan!');
@@ -20,7 +24,7 @@ app.listen(port, () => {
   console.log(`Server berjalan di port ${port}`);
 });
 
-export default app; // Penting untuk @vercel/node
+export default app; 
 
 app.use(cors({
     credentials: true,

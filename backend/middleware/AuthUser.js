@@ -1,5 +1,5 @@
-const jwt = require('jsonwebtoken');
-const { PrismaClient } = require("@prisma/client");
+import jwt from 'jsonwebtoken';
+import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 const secretKey = process.env.JWT_SECRET || "your-secret-key";

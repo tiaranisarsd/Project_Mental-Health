@@ -15,7 +15,7 @@ const app = express();
 
 // Konfigurasi CORS yang lebih baik
 const corsOptions = {
-    origin: 'https://mental-health1.netlify.app', // Ganti dengan origin frontend Anda
+    origin: 3000, // Ganti dengan origin frontend Anda
     credentials: true,
 };
 app.use(cors(corsOptions));

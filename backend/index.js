@@ -11,24 +11,25 @@ import EdukasiRoute from "./routes/EdukasiRoute.js";
 import JanjiRoute from "./routes/JanjiRoute.js";
 dotenv.config();
 
+const express = require('express');
+const cors = require('cors');
 const app = express();
-const port = process.env.APP_PORT;
-const prisma = new PrismaClient();
-const PGStore = pgSession(session);
+const routes = require('./routes');
 
-app.get('/', (req, res) => {
-  res.send('Backend Berjalan!');
-});
+app.use(cors());
+app.use(express.json());
+app.use('/api', routes);
 
+const port = process.env.PORT || 5000;
 app.listen(port, () => {
-  console.log(`Server berjalan di port ${port}`);
+    console.log(`Server berjalan di port ${port}`);
 });
 
-export default app; 
+module.exports = app; // Penting untuk Vercel
 
 app.use(cors({
     credentials: true,
-    origin: 3000
+    origin: 'https://mental-health1.netlify.app'
 }));
 
 app.use(

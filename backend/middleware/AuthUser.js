@@ -1,38 +1,54 @@
-import { PrismaClient } from "@prisma/client";
+const jwt = require('jsonwebtoken');
+const { PrismaClient } = require("@prisma/client");
 
 const prisma = new PrismaClient();
+const secretKey = process.env.JWT_SECRET || "your-secret-key";
 
+/**
+ * Middleware untuk memverifikasi JWT dan mendapatkan informasi pengguna dari token.
+ * Memastikan pengguna sudah login.
+ */
 export const verifyUser = async (req, res, next) => {
-    if (!req.session || !req.session.userId) {
-        return res.status(401).json({ msg: "Mohon login ke akun Anda" });
-    }
+  const authHeader = req.headers.authorization;
 
-    const response = await prisma.users.findUnique({
-        where: {
-            id: Number(req.session.userId)
-        }
-    });
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ msg: "Mohon login ke akun Anda (Token tidak ada)" });
+  }
 
-    if (!response) return res.status(404).json({ msg: "User not found" });
+  const token = authHeader.split(' ')[1];
 
-    req.userId = response.id;
-    req.role = response.role;
+  try {
+    const decoded = jwt.verify(token, secretKey);
+    req.user = decoded; // Simpan payload token di req.user
     next();
+  } catch (error) {
+    return res.status(401).json({ msg: "Token tidak valid atau kadaluarsa" });
+  }
 };
 
+/**
+ * Middleware untuk memverifikasi JWT dan memastikan pengguna memiliki peran "admin".
+ * Memastikan pengguna adalah admin.
+ */
 export const adminOnly = async (req, res, next) => {
-    if (!req.session || !req.session.userId) {
-        return res.status(401).json({ msg: "Mohon login ke akun Anda" });
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ msg: "Mohon login ke akun Anda (Token tidak ada)" });
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  try {
+    const decoded = jwt.verify(token, secretKey);
+    req.user = decoded;
+
+    if (decoded.role !== "admin") {
+      return res.status(403).json({ msg: "Akses terlarang" });
     }
 
-    const response = await prisma.users.findUnique({
-        where: {
-            id: Number(req.session.userId)
-        }
-    });
-
-    if (!response) return res.status(404).json({ msg: "User not found" });
-    if (response.role !== "admin") return res.status(403).json({ msg: "Akses terlarang" });
-
     next();
+  } catch (error) {
+    return res.status(401).json({ msg: "Token tidak valid atau kadaluarsa" });
+  }
 };
